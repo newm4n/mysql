@@ -13,6 +13,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"strconv"
@@ -295,6 +296,11 @@ func (mc *mysqlConn) interpolateParams(query string, args []driver.Value) (strin
 }
 
 func (mc *mysqlConn) Exec(query string, args []driver.Value) (driver.Result, error) {
+	fmt.Println("*** Exec START ------  EXECUTING --- ", query)
+	defer func() {
+		fmt.Println("*** Exec DONE ---------EXECUTING --- ", query)
+	}()
+
 	if mc.closed.IsSet() {
 		errLog.Print(ErrInvalidConn)
 		return nil, driver.ErrBadConn
@@ -325,6 +331,11 @@ func (mc *mysqlConn) Exec(query string, args []driver.Value) (driver.Result, err
 
 // Internal function to execute commands
 func (mc *mysqlConn) exec(query string) error {
+	fmt.Println("*** exec START ------  EXECUTING ",query," --- ", query)
+	defer func() {
+		fmt.Println("*** exec DONE ---------EXECUTING --- ", query)
+	}()
+
 	// Send command
 	if err := mc.writeCommandPacketStr(comQuery, query); err != nil {
 		return mc.markBadConn(err)
@@ -512,6 +523,10 @@ func (mc *mysqlConn) QueryContext(ctx context.Context, query string, args []driv
 }
 
 func (mc *mysqlConn) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	fmt.Println("*** ExecContext START ------  EXECUTING --- ", query)
+	defer func() {
+		fmt.Println("*** ExecContext DONE ---------EXECUTING --- ", query)
+	}()
 	dargs, err := namedValueToValue(args)
 	if err != nil {
 		return nil, err
